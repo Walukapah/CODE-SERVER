@@ -1,13 +1,24 @@
 FROM codercom/code-server:latest
 
-# Set environment variables
+# Add sudo & apt support
+USER root
+
+# Install packages (example: curl, git, x11-utils)
+RUN apt-get update && \
+    apt-get install -y sudo curl git x11-utils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create coder user with passwordless sudo (optional)
+RUN echo 'coder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Switch back to coder user
+USER coder
+
 ENV PASSWORD=waluka
 
-# Optional: Set working directory
 WORKDIR /home/coder/project
 
-# Expose default code-server port
 EXPOSE 8080
 
-# Start code-server
 CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "."]
